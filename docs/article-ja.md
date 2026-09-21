@@ -458,8 +458,6 @@ TORIAで形にしたかったのは、社員が正確に説明できなくても
 
 記事の構成を検討する際、以下のプロジェクト紹介記事を参考にしました。ここで紹介した実装・コード・検証結果はTORIAのものです。
 
-- [Anatom-AI — 自然言語で動かす3D人体解剖図](https://zenn.dev/jcs300/articles/5511ded660f522)
-- [AI HACK 2026：ユーザーフレンドリーなAIシフト管理サービスを目指して](https://qiita.com/ryu2002090533/items/4271b69dc53467514e59)
 - [OrcaRouter：Tool calling](https://docs.orcarouter.ai/advanced/tool-calling)
 - [OrcaRouter：Vision](https://docs.orcarouter.ai/advanced/vision)
 - [OrcaRouter：Per-request cost](https://docs.orcarouter.ai/operations/per-request-cost)
