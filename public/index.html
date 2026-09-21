@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>TORIA — 困った、その先へ。</title><link rel="stylesheet" href="/style.css"><script src="/app.js" defer></script></head>
+<body>
+  <header class="topbar"><a class="brand" href="/" aria-label="TORIA ホーム"><span class="brand-mark">t</span>TORIA<span class="brand-caption">IT SUPPORT COMPANION</span></a><span class="demo-badge"><span></span>AI HACK 2026 · DEMO</span></header>
+  <main>
+    <section class="intro"><div class="eyebrow">03 / EVIDENCE THAT CONNECTS</div><h1>困った、その先へ。</h1><p>うまく説明できなくても、大丈夫。<br>ひとつずつ確かめて、伝わる記録に。</p><span class="company-tag">青葉デザイン · 架空の企業デモ</span></section>
+    <div class="workspace">
+      <section class="chat-card" aria-label="TORIAとの会話">
+        <div class="chat-heading"><div><span class="small-mark">t</span><strong>TORIAに相談</strong></div><button type="button" id="reset" class="text-button">新しい相談 ↗</button></div>
+        <div class="case-bar"><span id="case-id">新しい相談</span><span id="case-state" class="state-badge">相談待ち</span></div>
+        <div id="messages" class="messages" role="log" aria-live="polite" aria-relevant="additions"></div>
+        <div id="suggestions" class="suggestions"><button type="button" data-prompt="会社のサイトが開きません。">会社のサイトが開かない ↗</button><button type="button" data-prompt="自宅で仕事をしていますが、会社のサイトにアクセスできません。">在宅勤務でつながらない ↗</button></div>
+        <div id="activity" class="activity" role="status" hidden>社内手順を参照して、次の確認を選んでいます…</div>
+        <section id="check-card" class="check-card" hidden><div class="check-header"><strong id="check-title"></strong><span id="check-mode"></span></div><div id="answers" class="answers"></div><p>選択した内容を「社員の申告」として記録します。</p></section>
+        <section id="image-card" class="image-card" hidden>
+          <strong>この画面で合っていますか？</strong><p>VPN・対象サイトの確認では、画像も使えます。機密情報のない架空の画像でお試しください。</p>
+          <label for="image-file">画像を選ぶ（PNG / JPEG・2MBまで）</label><input id="image-file" type="file" accept="image/png,image/jpeg">
+          <div class="image-samples"><button type="button" data-demo="vpn">デモ：VPN画面</button><button type="button" data-demo="login">デモ：ログイン画面</button></div>
+          <div id="image-preview-wrap" hidden><img id="image-preview" alt="送信前の画像プレビュー"><p>「画像を確認する」でOrcaRouter経由で画像AIへ送信します。画像そのものはTORIAの案件記録に保存しません。</p><button id="image-submit" type="button">画像を確認する ↗</button><button id="image-clear" type="button" class="text-button">取り消す</button></div>
+        </section>
+        <div id="handoff-note" class="outcome-note" hidden><strong>引き継ぎレポートを準備しました。</strong><p>担当者への通知や外部チケット作成は未接続です。記録を確認してコピー・保存できます。</p></div>
+        <div id="resolved-note" class="outcome-note" hidden><strong>元の業務を再開できたとの申告を記録しました。</strong><p>端末の自動検査による確認ではありません。再発時も同じ記録から再開できます。</p></div>
+        <p id="notice" class="notice" role="status" hidden></p><button type="button" id="retry" class="secondary-button retry-button" hidden>同じ操作を再試行</button>
+        <div class="action-bar"><button type="button" id="handoff">担当者に引き継ぐ ↗</button><button type="button" id="verify">直ったか確認する ✓</button><button type="button" id="reopen" hidden>同じ案件を再開 ↺</button></div>
+        <form id="chat-form"><label class="sr-only" for="message">相談内容・補足</label><textarea id="message" maxlength="2000" rows="2" placeholder="困っていることを、そのまま書いてください…" required></textarea><div class="composer-bottom"><span>パスワードや実際の社内情報は入力しないでください</span><button id="send" type="submit">相談を始める ↑</button></div></form>
+      </section>
+      <aside>
+        <section class="side-card evidence-card"><div class="eyebrow">HANDOFF EVIDENCE</div><h2>伝わる、確認の記録。 <span id="evidence-count" class="count">0</span></h2><p class="evidence-explainer">社員の申告・画像の観察・未実施の確認を分けます。画像だけで復旧済みとは判定しません。</p><ul id="evidence" class="evidence-list"></ul></section>
+        <section class="side-card"><div class="eyebrow">COMPANY KNOWLEDGE</div><h2>参照した社内手順</h2><div id="sources"></div></section>
+      </aside>
+    </div>
+    <section class="report-section"><div class="report-heading"><div><div class="eyebrow">READY FOR THE NEXT PERSON</div><h2>引き継ぎレポート</h2><p>根本原因が未確定でも、次の担当者に必要な情報を残します。</p></div><div class="report-buttons"><button id="copy-report" type="button" class="secondary-button">コピー</button><button id="download-report" type="button" class="secondary-button">テキストで保存 ↓</button></div></div><label class="sr-only" for="report">引き継ぎレポート</label><textarea id="report" readonly rows="9"></textarea></section>
+    <details class="developer-panel"><summary>開発用 · 接続・モデル・費用を確認</summary><div id="connection" class="connection">設定を確認しています…</div><button type="button" id="refresh" class="secondary-button">設定を再確認</button><dl><div><dt>直近のモデル</dt><dd id="model">—</dd></div><div><dt>応答時間</dt><dd id="latency">—</dd></div><div><dt>直近の応答時費用 · USD</dt><dd id="cost">—</dd></div><div><dt>直近の合計トークン</dt><dd id="tokens">—</dd></div><div><dt>案件の取得済み費用 · USD</dt><dd id="total-cost">—</dd></div></dl><p class="tiny">未取得の費用は0と見なしません。確定額はOrcaRouterで確認してください。AIが選んだ項目をサーバーで検証し、承認済みの質問のみ表示します。AIが使えない場合は基本手順で継続します。</p></details>
+    <footer><span>TORIA · Built with OrcaRouter</span><span>ローカルデモ · 再起動で消去・1時間の無操作で期限切れ</span></footer>
+  </main>
+</body></html>
