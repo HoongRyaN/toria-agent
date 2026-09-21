@@ -44,7 +44,7 @@ function handoff(s, reason) {
   return '確認したことと、まだ分からないことを引き継ぎレポートにまとめました。\nこのデモでは、担当部署への送信やチケット作成はまだ行っていません。';
 }
 export function makeReport(s) {
-  const statusLabel = s.status === 'resolved_reported' ? '社員が復旧を申告（独立検証なし）' : s.status === 'handoff_ready' ? '引き継ぎ準備完了・未送信' : '初診中';
+  const statusLabel = s.ticket ? 'ローカル模擬チケット作成済み（外部未送信）' : s.status === 'resolved_reported' ? '社員が復旧を申告（独立検証なし）' : s.status === 'handoff_ready' ? '引き継ぎ準備完了・未送信' : '初診中';
   const required = ['public_web', 'location', 'impact', 'error_screen'];
   if (s.answers.location === 'remote') required.push('vpn');
   const unknown = required.filter(id => !s.answers[id] || ['unknown', 'unable'].includes(s.answers[id]));
@@ -86,7 +86,7 @@ async function chooseWithModel(s, candidates, docs, config, fetchFn) {
   }
 }
 
-export function createTriageService({ config, fetchFn = fetch }) {
+export function createTriageService({ config, fetchFn = fetch, tickets = null }) {
   const sessions = new Map();
   const requests = new Map();
   const locks = new Set();
@@ -115,6 +115,12 @@ export function createTriageService({ config, fetchFn = fetch }) {
       if (body.action === 'start') {
         addEvidence(s, { title: '最初の相談', detail: s.issue, kind: 'reported' });
         s.messages.push({ role: 'user', content: s.issue });
+      } else if (body.action === 'create_ticket') {
+        if (s.status !== 'handoff_ready' || !tickets) throw new TriageError(409, '引き継ぎ準備ができた案件でチケットを作成してください。');
+        const ticket = tickets.create(s, makeReport(s));
+        s.ticket = { id: ticket.id };
+        reply = `模擬チケット ${ticket.id} をこのPCに保存しました。外部への通知はありません。ページ下の「模擬チケット」で担当者の対応と社員の復旧確認を体験できます。`;
+        shouldPlan = false;
       } else if (body.action === 'handoff') {
         if (s.status === 'resolved_reported') throw new TriageError(409, '終了済みです。再発の場合は案件を再開してください。');
         s.messages.push({ role: 'user', content: '担当者に引き継ぎたいです。' });
@@ -125,6 +131,7 @@ export function createTriageService({ config, fetchFn = fetch }) {
         s.currentCheck = { id: 'verify', ...CHECKS.verify, mode: 'policy' }; useSource(s, 'VERIFY-001');
         reply = CHECKS.verify.prompt; shouldPlan = false;
       } else if (body.action === 'reopen') {
+        if (s.ticket) throw new TriageError(409, 'チケット作成済みです。ページ下の模擬チケットで、復旧確認や再開を行ってください。');
         if (!['handoff_ready', 'resolved_reported'].includes(s.status)) throw new TriageError(409, 'まだ初診中です。');
         s.status = 'triaging'; s.currentCheck = { id: 'verify', ...CHECKS.verify, mode: 'policy' }; useSource(s, 'VERIFY-001');
         addEvidence(s, { title: '案件を再開', detail: '社員が継続確認を希望。以前の履歴を保持。', kind: 'reported' });
@@ -199,7 +206,7 @@ export function createTriageService({ config, fetchFn = fetch }) {
   function present(s) {
     const unknownCosts = s.calls.filter(x => x.costUsd === null).length;
     return { ...structuredClone(s), sources: s.sources.map(id => KNOWLEDGE.find(d => d.id === id)),
-      report: makeReport(s), latestRequest: s.calls.at(-1) || null,
+      report: makeReport(s) + (s.ticket ? `\n\nローカル模擬チケット: ${s.ticket.id}\nチケットの最新状態は模擬チケット一覧を参照。外部通知なし。` : ''), latestRequest: s.calls.at(-1) || null,
       usage: { attempts: s.calls.length, knownCostUsd: s.calls.reduce((a, c) => a + (c.costUsd ?? 0), 0), unknownCosts } };
   }
   return {

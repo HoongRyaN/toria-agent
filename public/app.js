@@ -20,6 +20,7 @@ function controls() {
   $('handoff').disabled = pending || !session || session.status !== 'triaging';
   $('verify').disabled = pending || !session || session.status !== 'triaging';
   $('reopen').disabled = pending;
+  $('create-ticket').disabled = pending || Boolean(session?.ticket);
   $('copy-report').disabled = pending || !session;
   $('download-report').disabled = pending || !session;
   $('send').textContent = pending ? '確認中…' : session ? '補足を送る ↑' : '相談を始める ↑';
@@ -34,9 +35,9 @@ function render() {
   $('messages').scrollTop = $('messages').scrollHeight;
   $('suggestions').hidden = Boolean(session);
   $('case-id').textContent = session?.displayId || '新しい相談';
-  $('case-state').textContent = session ? stateLabels[session.status] : '相談待ち';
+  $('case-state').textContent = session?.ticket ? '模擬チケット作成済み' : session ? stateLabels[session.status] : '相談待ち';
   $('case-state').dataset.state = session?.status || '';
-  $('reopen').hidden = !session || session.status === 'triaging';
+  $('reopen').hidden = !session || session.status === 'triaging' || Boolean(session.ticket);
   $('check-card').hidden = !session?.currentCheck;
   $('image-card').hidden = !['vpn', 'error_screen'].includes(session?.currentCheck?.id);
   $('answers').replaceChildren();
@@ -66,6 +67,9 @@ function render() {
   if (!session?.sources.length) $('sources').append(el('p', '青葉デザイン（架空）の手順書を、相談に応じて参照します。', 'empty-state'));
   $('report').value = session?.report || '相談後に引き継ぎレポートが作成されます。';
   $('handoff-note').hidden = session?.status !== 'handoff_ready';
+  $('create-ticket').hidden = Boolean(session?.ticket);
+  $('handoff-title').textContent = session?.ticket ? `模擬チケット ${session.ticket.id} を保存しました。` : '引き継ぎレポートを準備しました。';
+  $('handoff-description').textContent = session?.ticket ? 'ページ下の模擬チケットで、担当者の対応と社員の復旧確認を体験できます。外部への通知はありません。' : '下のレポートを確認したら、このPCに模擬チケットを作成できます。実際の担当者への通知はありません。';
   $('resolved-note').hidden = session?.status !== 'resolved_reported';
   const meta = session?.latestRequest;
   $('model').textContent = meta?.model || '未取得';
@@ -94,6 +98,7 @@ async function act(event, reuse = false) {
       throw new Error(data.error || '処理に失敗しました。');
     }
     session = data;
+    if (body.action === 'create_ticket') document.dispatchEvent(new Event('toria-ticket-created'));
     clearImage();
     sessionStorage.setItem('toria-case', session.id);
     $('message').value = '';
@@ -115,6 +120,7 @@ async function checkConfig() {
 $('refresh').addEventListener('click', checkConfig);
 $('reset').addEventListener('click', () => { if (pending) return; session = null; retry = null; clearImage(); sessionStorage.removeItem('toria-case'); $('message').value = ''; notice(''); render(); });
 $('handoff').addEventListener('click', () => act({ action: 'handoff' }));
+$('create-ticket').addEventListener('click', () => act({ action: 'create_ticket' }));
 $('verify').addEventListener('click', () => act({ action: 'verify' }));
 $('reopen').addEventListener('click', () => act({ action: 'reopen' }));
 $('retry').addEventListener('click', () => { if (retry) act(retry, true); });

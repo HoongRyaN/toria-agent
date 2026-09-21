@@ -2,13 +2,15 @@
 
 TORIA is a demo internal IT helpdesk agent built for AI HACK 2026, using OrcaRouter for adaptive troubleshooting and evidence-based ticket handoff with fictional company data.
 
-## Current milestone: adaptive checks, screenshot observations and evidence handoff
+## Current milestone: adaptive checks, screenshot evidence and persistent demo tickets
 
 Implemented: Japanese triage page, five fictional company IT articles with source/version display, keyword-and-check-based retrieval, OrcaRouter tool calling to select the next approved check, explicit employee response buttons, evidence timeline, copy/download handoff report, employee-reported resolution confirmation and reopening, and per-case usage metadata. Chinese descriptions can be submitted; questions and options are currently Japanese.
 
 Screenshot checks are available for the VPN display and inaccessible site screen. A separate vision call classifies the image through a constrained tool. It records an **AI image observation**, keeps the check unanswered, and asks the employee to confirm the actual display using the existing buttons. A login screen supplied for a VPN check produces guidance to find the VPN application. Images cannot prove live device state, the identity of the company-approved application, or successful recovery.
 
-Not implemented yet: device telemetry, endpoint actions, persistent ticket creation, external escalation, tenant/user authentication, or a production knowledge connector. This is not a general IT repair agent. The supported scenario is an inaccessible company website.
+Handoff reports can now be submitted to a local persistent demo ticket board. The original evidence snapshot is retained, repeated submission of the same case returns the same ticket number, and status changes have a history. Operator-role actions record work and request employee confirmation; only the employee-role confirmation closes a ticket. Rejection returns it to work, and recurrence reopens the same ticket. These roles are explicitly simulated on one page, without authentication or permission separation.
+
+Not implemented yet: device telemetry, endpoint actions, external escalation/notifications, tenant/user authentication, or a production knowledge connector. This is not a general IT repair agent. The supported scenario is an inaccessible company website.
 
 ## How the initial diagnosis works
 
@@ -16,8 +18,8 @@ Not implemented yet: device telemetry, endpoint actions, persistent ticket creat
 2. The model receives the issue, employee-reported answers, retrieved passages, and only allowed check IDs. It calls `select_next_check`.
 3. The server validates the chosen ID, then displays the corresponding approved question and response buttons. The model cannot fabricate evidence, emit arbitrary repair commands, or execute unlisted tools.
 4. Button choices become employee-reported observations or explicit incomplete/unknown checks. A submitted note remains an unverified employee statement; it does not automatically complete a check.
-5. Employee handoff requests and safety/stop rules can end triage immediately. The report is prepared locally, explicitly **not sent** to a real helpdesk.
-6. The employee can confirm that the original task works, or reopen the same case when it does not. This is a self-report, not independent device verification.
+5. Employee handoff requests and safety/stop rules can end triage immediately. The report is prepared locally, explicitly **not sent** to a real helpdesk. After reviewing it, the employee can create a local demo ticket.
+6. Before ticket creation, the employee can confirm that the original task works, or reopen the same intake case. After ticket creation, use the ticket board for status changes and recovery confirmation. Both are self-reports, not independent device verification.
 
 The model chooses among server-eligible checks; mandatory stop rules and the actual check wording are deterministic. If the model is unavailable or returns an invalid tool choice, the app visibly falls back to the basic approved procedure and keeps evidence. This fallback is not claimed as AI selection. One model call is attempted per planned step, with a 25-second timeout and a 250-token output limit. Human handoff and resolution confirmation do not need a model call. Cost-free local tests cover these behaviors; live integration is tested separately.
 
@@ -46,6 +48,10 @@ The local `.env` file is reread on each request: saving it does not require rest
 
 ## Development and verification
 
+Demo tickets are saved in `data/tickets.json`, ignored by Git, and survive server restarts. This is a single-server local store, using a temporary file and rename for writes; it is not a multi-process database. At most 100 tickets are supported. The stored intake report is an immutable snapshot from before ticket creation; the ticket status and activity history describe subsequent progress. A corrupt/unreadable store raises an error rather than silently replacing existing records. Keep this directory private and use fictional cases only.
+
+To try the complete loop, prepare a handoff, click `レポートを確認して模擬チケットを作成`, then scroll to `模擬チケット`. As the operator role, start work and enter a fictional work note; submit it to request confirmation. As the employee role, first choose `まだ使えない` to send it back, then repeat with `元の業務を再開できた` to close. The same ticket can be reopened. No model call is needed for ticket creation or status changes.
+
 Run `node --test`. Tests use a fake upstream response and spend no API credit. A live call must be tested separately using your own key.
 
 Frontend: plain HTML, CSS and JavaScript in `public/`. Backend: Node.js built-in HTTP server in `server.mjs`; triage logic in `triage.mjs`. Case records are held in server memory, not on disk. They are lost on server restart and expire after one hour without updates. A session identifier in browser sessionStorage lets a refresh restore the current case while the server still has it. Starting a new consultation switches the browser to a new case; it does not immediately erase the previous case from server memory. Exported reports and upstream retention are separate.
@@ -57,7 +63,7 @@ The earlier `/api/chat` connection endpoint is retained for regression tests; th
 ## Roadmap
 
 - Stronger image evaluation against varied and ambiguous screenshots.
-- Persistent test tickets with duplicate prevention and reviewable handoff.
+- Authenticated ticket-system integration and tenant-separated storage.
 - Better language support and more approved checks.
 - Measured quality, reliability, safety and cost comparison.
 

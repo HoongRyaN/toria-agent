@@ -4,6 +4,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { dirname, join } from 'node:path';
 import { parseEnv } from 'node:util';
 import { createTriageService, TriageError } from './triage.mjs';
+import { createTicketStore, TicketError } from './tickets.mjs';
 
 const ROOT = dirname(fileURLToPath(import.meta.url));
 const ENDPOINT = 'https://api.orcarouter.ai/v1/chat/completions';
@@ -42,14 +43,16 @@ export function validateMessages(messages) {
 const ASSETS = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
+  ['/tickets.js', ['tickets.js', 'text/javascript; charset=utf-8']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
   ['/demo/vpn.png', ['demo/vpn.png', 'image/png']],
   ['/demo/login.png', ['demo/login.png', 'image/png']],
 ]);
 
-export function createApp({ config = loadConfig, fetchFn = fetch } = {}) {
+export function createApp({ config = loadConfig, fetchFn = fetch, dataDir = join(ROOT, 'data') } = {}) {
   let busy = false;
-  const triage = createTriageService({ config, fetchFn });
+  const tickets = createTicketStore(dataDir);
+  const triage = createTriageService({ config, fetchFn, tickets });
   return http.createServer(async (req, res) => {
     const send = (status, data, type = 'application/json; charset=utf-8') => {
       res.writeHead(status, {
@@ -72,8 +75,23 @@ export function createApp({ config = loadConfig, fetchFn = fetch } = {}) {
     if (req.method === 'GET' && route === '/api/status') {
       try {
         const c = config();
-        return send(200, { configured: Boolean(c.key), model: c.model, milestone: 3 });
+        return send(200, { configured: Boolean(c.key), model: c.model, milestone: 4 });
       } catch { return send(500, { error: 'Could not read local configuration.' }); }
+    }
+    if (route === '/api/tickets' && ['GET', 'POST'].includes(req.method)) {
+      try {
+        if (req.method === 'GET') return send(200, { tickets: tickets.list() });
+        if (!req.headers['content-type']?.startsWith('application/json')) return send(415, { error: 'JSON request required.' });
+        let size = 0; const chunks = [];
+        for await (const chunk of req) {
+          size += chunk.length;
+          if (size > 12000) { send(413, { error: '入力が長すぎます。' }); req.resume(); return; }
+          chunks.push(chunk);
+        }
+        let body;
+        try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return send(400, { error: '操作を読み取れません。' }); }
+        return send(200, tickets.update(body));
+      } catch (e) { return send(e instanceof TicketError ? e.status : 500, { error: e instanceof TicketError ? e.message : 'チケットを保存できませんでした。記録を確認してから再試行してください。' }); }
     }
     if (route === '/api/triage' && ['GET', 'POST'].includes(req.method)) {
       try {
@@ -88,7 +106,7 @@ export function createApp({ config = loadConfig, fetchFn = fetch } = {}) {
         let body;
         try { body = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { return send(400, { error: 'メッセージを読み取れません。' }); }
         return send(200, await triage.handle(body));
-      } catch (error) { return send(error instanceof TriageError ? error.status : 500, { error: error instanceof TriageError ? error.message : '処理を完了できませんでした。再試行してください。' }); }
+      } catch (error) { const known = error instanceof TriageError || error instanceof TicketError; return send(known ? error.status : 500, { error: known ? error.message : '処理を完了できませんでした。再試行してください。' }); }
     }
     if (req.method !== 'POST' || route !== '/api/chat') return send(404, { error: 'Not found.' });
     if (!req.headers['content-type']?.startsWith('application/json'))
