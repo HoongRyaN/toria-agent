@@ -48,6 +48,8 @@ The local `.env` file is reread on each request: saving it does not require rest
 
 ## Development and verification
 
+Read the [Japanese project article](docs/article-ja.md) for the demo flow, architecture, selected implementation code and measured validation results.
+
 See [the validation record](docs/validation.md) for 36 regression tests, live synthetic fixtures, observed failures and follow-up fixes. The optional `node scripts/evaluate.mjs --live --run=my-check` makes six paid API calls. Do not treat mocked tests as model accuracy measurements. A readable image/employee-answer discrepancy now retains both sources and prepares a handoff for further verification.
 
 Demo tickets are saved in `data/tickets.json`, ignored by Git, and survive server restarts. This is a single-server local store, using a temporary file and rename for writes; it is not a multi-process database. At most 100 tickets are supported. The stored intake report is an immutable snapshot from before ticket creation; the ticket status and activity history describe subsequent progress. A corrupt/unreadable store raises an error rather than silently replacing existing records. Keep this directory private and use fictional cases only.
