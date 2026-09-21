@@ -18,7 +18,9 @@ function modelStub(choose = ids => ids[0]) {
 }
 test('knowledge retrieval uses matching company source with version', () => {
   assert.equal(retrieveKnowledge('VPN 接続')[0].id, 'VPN-001');
-  assert.ok(retrieveKnowledge('登录 権限')[0].version);
+  assert.equal(retrieveKnowledge('ログイン 権限')[0].id, 'IAM-001');
+  assert.ok(retrieveKnowledge('ログイン 権限')[0].version);
+  assert.equal(retrieveKnowledge('permission denied')[0].id, 'IAM-001');
 });
 test('public connectivity failure routes to handoff without VPN advice or fabricated verification', async () => {
   const service = createTriageService({ config, fetchFn: modelStub() });
@@ -86,11 +88,13 @@ test('provider outage keeps evidence and records cost as unknown', async () => {
   assert.equal(s.usage.unknownCosts, 1);
   assert.equal(s.latestRequest.costUsd, null);
 });
-test('human handoff works without calling AI and without completing checks', async () => {
+test('Japanese and English human handoff works without calling AI or completing checks', async () => {
   const service = createTriageService({ config, fetchFn: () => assert.fail('must not call upstream') });
-  const s = await start(service, '我想转人工');
-  assert.equal(s.status, 'handoff_ready');
-  assert.equal(s.calls.length, 0);
+  for (const text of ['有人対応を希望します', '担当者に相談したいです', 'I need human support', 'I want to speak to a person']) {
+    const s = await start(service, text);
+    assert.equal(s.status, 'handoff_ready');
+    assert.equal(s.calls.length, 0);
+  }
 });
 test('resolution requires explicit original-task confirmation, supports reopening, retains evidence', async () => {
   const service = createTriageService({ config, fetchFn: modelStub() });

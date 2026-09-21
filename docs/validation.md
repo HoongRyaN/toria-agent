@@ -32,3 +32,9 @@ The final text prompt was retested only on the urgent input. Do not combine resu
 ## Before a public demo
 
 Use the new source on the presentation laptop and restart the local server. Try the normal wrong-screen path and the disagreement path once with fictional inputs. The Windows environment has been tested here; the Mac presentation environment still needs an actual rehearsal. API availability and responses can vary. Authentication, tenant separation, external ticket delivery and endpoint repairs remain outside this prototype.
+
+## Language consistency update
+
+The legacy chat endpoint's error messages and reply-language instruction now use Japanese. Retrieval tags, explicit human-handoff phrases and test examples use Japanese or English. All 36 automated tests passed again after this update, including Japanese/English retrieval and human handoff without a model call. Tracked text and the four demo/evaluation images were reviewed for language consistency.
+
+The recorded live evaluations above and the article's pinned source links describe the earlier implementation. Their inputs, results and hashes are preserved as measured; they are not new measurements of the language update. No paid model calls were made for this update. The retrieved tag vocabulary has changed, so new live results may differ.

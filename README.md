@@ -4,7 +4,7 @@ TORIA is a demo internal IT helpdesk agent built for AI HACK 2026, using OrcaRou
 
 ## Current milestone: adaptive checks, screenshot evidence and persistent demo tickets
 
-Implemented: Japanese triage page, five fictional company IT articles with source/version display, keyword-and-check-based retrieval, OrcaRouter tool calling to select the next approved check, explicit employee response buttons, evidence timeline, copy/download handoff report, employee-reported resolution confirmation and reopening, and per-case usage metadata. Chinese descriptions can be submitted; questions and options are currently Japanese.
+Implemented: Japanese triage page, five fictional company IT articles with source/version display, keyword-and-check-based retrieval, OrcaRouter tool calling to select the next approved check, explicit employee response buttons, evidence timeline, copy/download handoff report, employee-reported resolution confirmation and reopening, and per-case usage metadata. Questions and options are Japanese; retrieval keywords and explicit human-handoff phrases use Japanese and English.
 
 Screenshot checks are available for the VPN display and inaccessible site screen. A separate vision call classifies the image through a constrained tool. It records an **AI image observation**, keeps the check unanswered, and asks the employee to confirm the actual display using the existing buttons. A login screen supplied for a VPN check produces guidance to find the VPN application. Images cannot prove live device state, the identity of the company-approved application, or successful recovery.
 
@@ -47,6 +47,8 @@ Requires Node.js 22 or newer. No package installation is needed.
 The local `.env` file is reread on each request: saving it does not require restarting TORIA. The key is used only by the server when calling https://api.orcarouter.ai/v1/chat/completions. It is never sent to the browser. Key presence is not proof of a successful connection; a successful model response confirms that.
 
 ## Development and verification
+
+Repository content uses Japanese or English. Employee-facing text is primarily Japanese; code comments and development documentation use English, with the project article in Japanese. Keep new examples, retrieval tags, test fixtures and error messages consistent with these languages.
 
 Read the [Japanese project article](docs/article-ja.md) for the demo flow, architecture, selected implementation code and measured validation results.
 

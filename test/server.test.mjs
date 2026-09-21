@@ -78,7 +78,7 @@ test('upstream errors do not reflect sensitive response bodies', async t => {
   const body = await response.text();
   assert.equal(response.status, 502);
   assert.equal(body.includes(key), false);
-  assert.match(body, /密钥未通过验证/);
+  assert.match(body, /APIキーの認証に失敗/);
 });
 test('timeout handled and request lock released for next attempt', async t => {
   const url = await fixture(t, { config, fetchFn: async () => { throw new DOMException('Timed out', 'TimeoutError'); } });

@@ -186,7 +186,7 @@ export function createTriageService({ config, fetchFn = fetch, tickets = null })
         else { addEvidence(s, { title: '補足', detail: body.text.trim(), kind: 'reported' }); s.messages.push({ role: 'user', content: body.text.trim() }); prefix = '補足を社員の申告として記録しました。確認結果は、下の選択肢で教えてください。\n\n'; }
       } else throw new TriageError(400, '対応していない操作です。');
 
-      if (['start', 'note'].includes(body.action) && /人工|转人工|担当者に|担当者と|人に相談|人と話|human (?:support|agent)|speak to (?:a )?person/i.test(body.text || '')) {
+      if (['start', 'note'].includes(body.action) && /有人対応|担当者に|担当者と|人に相談|人と話|human (?:support|agent)|speak to (?:a )?person/i.test(body.text || '')) {
         reply = handoff(s, '社員の入力で担当者への引き継ぎを希望'); shouldPlan = false;
       }
 
