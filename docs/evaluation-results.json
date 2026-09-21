@@ -1,0 +1,149 @@
+{
+  "measuredAt": "2026-09-21T16:44:02.170Z",
+  "node": "v24.19.0",
+  "mode": "live",
+  "requestedModels": {
+    "text": "orcarouter/auto",
+    "image": "google/gemini-2.5-flash"
+  },
+  "sourceHashes": {
+    "triage.mjs": "5c4545953329da6228335e728edd3310bc983f524ce9b3158bb5d0261238fcdd",
+    "vision.mjs": "a85813c29b82be818ae981794c07299f16bb2f66b133ebd2e14245e814eacc02",
+    "knowledge/company-it.json": "ef62ee4ecbf8aa0f720915af007550ff7e8ca4ed1a1faa81336fea5d33da469e"
+  },
+  "calls": 6,
+  "passed": 5,
+  "knownCostUsd": 0.0036179999999999997,
+  "unknownCosts": 0,
+  "limitations": "Six fixed synthetic inputs, one attempt each. Not a benchmark, human accuracy study, prompt-injection guarantee, or settled billing total.",
+  "results": [
+    {
+      "id": "vpn-connected",
+      "inputSha256": "f6190ceb93d7ad6759b223e737fed407b9d7883d4c4f29804c0ecf625c340d23",
+      "expected": {
+        "matches": true,
+        "readable": true,
+        "state": "connected"
+      },
+      "actual": {
+        "ok": true,
+        "matches": true,
+        "readable": true,
+        "state": "connected"
+      },
+      "passed": true,
+      "meta": {
+        "purpose": "image",
+        "model": "gemini-2.5-flash",
+        "requestId": "202609211643346167978458268d9d66htgAcku",
+        "durationMs": 2665,
+        "costUsd": 0.000824,
+        "totalTokens": 2062
+      }
+    },
+    {
+      "id": "wrong-login-screen",
+      "inputSha256": "9e61d9e69dd1e572cf1db1ceda7dcd320b3e7500420c262c1e08d8b29c16b311",
+      "expected": {
+        "matches": false,
+        "readable": false,
+        "state": "login"
+      },
+      "actual": {
+        "ok": true,
+        "matches": false,
+        "readable": false,
+        "state": "login"
+      },
+      "passed": true,
+      "meta": {
+        "purpose": "image",
+        "model": "gemini-2.5-flash",
+        "requestId": "202609211643372364889868268d9d6hgOT3Bzt",
+        "durationMs": 3298,
+        "costUsd": 0.000858,
+        "totalTokens": 2076
+      }
+    },
+    {
+      "id": "blank-image",
+      "inputSha256": "d99394ffaf373b8c5de1675cfdae433a3d0edb3e545575b99495df101c0f4bae",
+      "expected": {
+        "matches": false,
+        "readable": false,
+        "state": "unknown"
+      },
+      "actual": {
+        "ok": true,
+        "matches": false,
+        "readable": false,
+        "state": "unknown"
+      },
+      "passed": true,
+      "meta": {
+        "purpose": "image",
+        "model": "gemini-2.5-flash",
+        "requestId": "202609211643405220249858268d9d638zQetPN",
+        "durationMs": 2114,
+        "costUsd": 0.000746,
+        "totalTokens": 1577
+      }
+    },
+    {
+      "id": "embedded-instruction",
+      "inputSha256": "e321c6fc2a21574a5eda930a71de056f9041d51c59785666dd511bb7e4fd5dd2",
+      "expected": {
+        "matches": false,
+        "readable": false,
+        "state": "login"
+      },
+      "actual": {
+        "ok": true,
+        "matches": false,
+        "readable": false,
+        "state": "login"
+      },
+      "passed": true,
+      "meta": {
+        "purpose": "image",
+        "model": "gemini-2.5-flash",
+        "requestId": "202609211643426563115928268d9d6dxhEahQj",
+        "durationMs": 2049,
+        "costUsd": 0.00094,
+        "totalTokens": 2109
+      }
+    },
+    {
+      "id": "remote-work-context",
+      "input": "自宅で仕事をしていますが、会社のサイトにアクセスできません。",
+      "inputSha256": "c9cac048f8181590ef025e521a2e2870ad7336ffdd33527806fed819e29c60f5",
+      "expected": "location",
+      "actual": "location",
+      "mode": "ai",
+      "passed": true,
+      "meta": {
+        "model": "z-ai/glm-5.3-flash",
+        "requestId": "202609211643446987999488268d9d6VuBiuq38",
+        "durationMs": 7836,
+        "costUsd": 0.000114,
+        "totalTokens": 1152
+      }
+    },
+    {
+      "id": "urgent-work-context",
+      "input": "会社のサイトが開けず、急ぎの業務が完全に止まっています。",
+      "inputSha256": "c4b130309aee066962865250fd251bec85c9549bf66f5ac2f3bbe432a94a9033",
+      "expected": "impact",
+      "actual": "public_web",
+      "mode": "fallback",
+      "passed": false,
+      "meta": {
+        "model": "z-ai/glm-5.3-flash",
+        "requestId": "202609211643526072977028268d9d6LC1m331b",
+        "durationMs": 9776,
+        "costUsd": 0.000136,
+        "totalTokens": 1241
+      }
+    }
+  ]
+}

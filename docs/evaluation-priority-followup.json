@@ -1,0 +1,38 @@
+{
+  "measuredAt": "2026-09-21T16:46:32.337Z",
+  "node": "v24.19.0",
+  "mode": "live",
+  "requestedModels": {
+    "text": "orcarouter/auto",
+    "image": "google/gemini-2.5-flash"
+  },
+  "sourceHashes": {
+    "triage.mjs": "679d14658b59be4c7441c3b3dbc34c13f7b7499360126cf459aa4f51653f3804",
+    "vision.mjs": "a85813c29b82be818ae981794c07299f16bb2f66b133ebd2e14245e814eacc02",
+    "knowledge/company-it.json": "ef62ee4ecbf8aa0f720915af007550ff7e8ca4ed1a1faa81336fea5d33da469e"
+  },
+  "calls": 1,
+  "passed": 1,
+  "knownCostUsd": 0.0001,
+  "unknownCosts": 0,
+  "limitations": "1 fixed synthetic inputs, one attempt each. Not a benchmark, human accuracy study, prompt-injection guarantee, or settled billing total.",
+  "results": [
+    {
+      "id": "urgent-work-context",
+      "input": "会社のサイトが開けず、急ぎの業務が完全に止まっています。",
+      "inputSha256": "c4b130309aee066962865250fd251bec85c9549bf66f5ac2f3bbe432a94a9033",
+      "expected": "impact",
+      "actual": "impact",
+      "mode": "ai",
+      "passed": true,
+      "meta": {
+        "model": "z-ai/glm-5.3-flash",
+        "requestId": "202609211646262443570638268d9d6Hj13JbCp",
+        "durationMs": 6324,
+        "costUsd": 0.0001,
+        "totalTokens": 1118,
+        "finishReason": "tool_calls"
+      }
+    }
+  ]
+}

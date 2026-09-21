@@ -21,7 +21,7 @@ Not implemented yet: device telemetry, endpoint actions, external escalation/not
 5. Employee handoff requests and safety/stop rules can end triage immediately. The report is prepared locally, explicitly **not sent** to a real helpdesk. After reviewing it, the employee can create a local demo ticket.
 6. Before ticket creation, the employee can confirm that the original task works, or reopen the same intake case. After ticket creation, use the ticket board for status changes and recovery confirmation. Both are self-reports, not independent device verification.
 
-The model chooses among server-eligible checks; mandatory stop rules and the actual check wording are deterministic. If the model is unavailable or returns an invalid tool choice, the app visibly falls back to the basic approved procedure and keeps evidence. This fallback is not claimed as AI selection. One model call is attempted per planned step, with a 25-second timeout and a 250-token output limit. Human handoff and resolution confirmation do not need a model call. Cost-free local tests cover these behaviors; live integration is tested separately.
+The model chooses among server-eligible checks; mandatory stop rules and the actual check wording are deterministic. If the model is unavailable or returns an invalid tool choice, the app visibly falls back to the basic approved procedure and keeps evidence. This fallback is not claimed as AI selection. One model call is attempted per planned step, with a 25-second timeout and a 512-token output limit. Human handoff and resolution confirmation do not need a model call. Cost-free local tests cover these behaviors; live integration is tested separately.
 
 ## Try these paths
 
@@ -47,6 +47,8 @@ Requires Node.js 22 or newer. No package installation is needed.
 The local `.env` file is reread on each request: saving it does not require restarting TORIA. The key is used only by the server when calling https://api.orcarouter.ai/v1/chat/completions. It is never sent to the browser. Key presence is not proof of a successful connection; a successful model response confirms that.
 
 ## Development and verification
+
+See [the validation record](docs/validation.md) for 36 regression tests, live synthetic fixtures, observed failures and follow-up fixes. The optional `node scripts/evaluate.mjs --live --run=my-check` makes six paid API calls. Do not treat mocked tests as model accuracy measurements. A readable image/employee-answer discrepancy now retains both sources and prepares a handoff for further verification.
 
 Demo tickets are saved in `data/tickets.json`, ignored by Git, and survive server restarts. This is a single-server local store, using a temporary file and rename for writes; it is not a multi-process database. At most 100 tickets are supported. The stored intake report is an immutable snapshot from before ticket creation; the ticket status and activity history describe subsequent progress. A corrupt/unreadable store raises an error rather than silently replacing existing records. Keep this directory private and use fictional cases only.
 

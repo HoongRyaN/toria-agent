@@ -55,7 +55,7 @@ function render() {
   if (!session?.evidence.length) $('evidence').append(el('p', '相談を始めると、確認の記録がここに残ります。', 'empty-state'));
   for (const item of session?.evidence || []) {
     const row = el('li', '', 'evidence-item');
-    row.append(el('span', item.kind === 'observed' ? '画像の観察（AI）' : item.kind === 'not_completed' ? '未実施・不明' : '社員の申告', `evidence-badge ${item.kind}`), el('strong', item.title), el('p', item.detail), el('small', `${item.id} · ${new Date(item.at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`));
+    row.append(el('span', item.kind === 'discrepancy' ? '要追加確認' : item.kind === 'observed' ? '画像の観察（AI）' : item.kind === 'not_completed' ? '未実施・不明' : '社員の申告', `evidence-badge ${item.kind}`), el('strong', item.title), el('p', item.detail), el('small', `${item.id} · ${new Date(item.at).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })}`));
     $('evidence').append(row);
   }
   $('sources').replaceChildren();
