@@ -1,5 +1,7 @@
 # TORIA / トリア
 
+<img src="public/brand/toria-icon.png" alt="TORIA logo" width="80" height="80">
+
 TORIA is a demo internal IT helpdesk agent built for AI HACK 2026, using OrcaRouter for adaptive troubleshooting and evidence-based ticket handoff with fictional company data.
 
 ## Current milestone: adaptive checks, screenshot evidence and persistent demo tickets

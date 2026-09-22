@@ -45,6 +45,7 @@ const ASSETS = new Map([
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/tickets.js', ['tickets.js', 'text/javascript; charset=utf-8']],
   ['/style.css', ['style.css', 'text/css; charset=utf-8']],
+  ['/brand/toria-icon.png', ['brand/toria-icon.png', 'image/png']],
   ['/demo/vpn.png', ['demo/vpn.png', 'image/png']],
   ['/demo/login.png', ['demo/login.png', 'image/png']],
 ]);
