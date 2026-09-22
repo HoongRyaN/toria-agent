@@ -1,6 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { randomUUID, createHash } from 'node:crypto';
 import { validateImage, inspectImage } from './vision.mjs';
+import { providerDiagnostic } from './provider-diagnostics.mjs';
 
 export const KNOWLEDGE = JSON.parse(readFileSync(new URL('./knowledge/company-it.json', import.meta.url), 'utf8'));
 const opt = (value, label) => ({ value, label });
@@ -57,6 +58,7 @@ async function chooseWithModel(s, candidates, docs, config, fetchFn) {
   if (!c.key?.startsWith('sk-orca-')) return { id: candidates[0], mode: 'fallback', warning: 'AI接続の設定がないため、基本手順で確認を続けます。', meta: null };
   const started = performance.now();
   let meta = null;
+  let httpStatus = null;
   try {
     const response = await fetchFn('https://api.orcarouter.ai/v1/chat/completions', {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(25000),
@@ -70,7 +72,8 @@ async function chooseWithModel(s, candidates, docs, config, fetchFn) {
         tool_choice: { type: 'function', function: { name: 'select_next_check' } },
       }),
     });
-    if (!response.ok) throw new Error(`provider_${response.status}`);
+    httpStatus = response.status;
+    if (!response.ok) throw new Error('provider_error');
     const data = await response.json();
     const cost = data.usage?.cost_usd;
     meta = { model: response.headers.get('X-Orca-Resolved-Model') || data.model || c.model,
@@ -83,7 +86,8 @@ async function chooseWithModel(s, candidates, docs, config, fetchFn) {
     return { id: args.check_id, mode: 'ai', meta };
   } catch (error) {
     const reason = ['invalid_tool', 'invalid_choice'].includes(error.message) ? error.message : error instanceof SyntaxError ? 'invalid_json' : ['TimeoutError', 'AbortError'].includes(error.name) ? 'timeout' : 'request_failed';
-    return { id: candidates[0], mode: 'fallback', meta: { ...(meta || { model: null, requestId: null, durationMs: Math.round(performance.now() - started), costUsd: null, totalTokens: null }), fallbackReason: reason }, warning: 'AIの選択を確認できなかったため、基本手順に切り替えました。記録は保持されています。費用はOrcaRouterで確認できます。' };
+    const diagnostic = providerDiagnostic(error, httpStatus);
+    return { id: candidates[0], mode: 'fallback', meta: { ...(meta || { model: null, requestId: null, durationMs: Math.round(performance.now() - started), costUsd: null, totalTokens: null }), fallbackReason: reason, ...diagnostic }, warning: `${diagnostic.failureMessage}\n基本手順で継続します。記録は保持されています。費用はOrcaRouterで確認できます。` };
   }
 }
 
@@ -152,7 +156,7 @@ export function createTriageService({ config, fetchFn = fetch, tickets = null })
           reply = observation.guidance;
         } else {
           reply = '画像を確認できませんでした。確認結果は追加していません。下の選択肢で回答するか、担当者に引き継げます。';
-          imageWarning = '画像AIの応答を確認できませんでした。費用はOrcaRouterで確認してください。';
+          imageWarning = `${observation.meta?.failureMessage || '画像AIの応答を確認できませんでした。'} 費用はOrcaRouterで確認してください。`;
         }
         shouldPlan = false;
       } else if (body.action === 'answer') {

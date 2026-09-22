@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { providerDiagnostic } from './provider-diagnostics.mjs';
 
 export function validateImage(data) {
   if (typeof data !== 'string' || data.length > 2800000) throw new Error('image_size');
@@ -16,6 +17,7 @@ export async function inspectImage({ image, checkId, config, fetchFn }) {
   if (!c.key?.startsWith('sk-orca-')) return { ok: false, meta: null };
   const started = performance.now();
   let meta;
+  let httpStatus = null;
   try {
     const response = await fetchFn('https://api.orcarouter.ai/v1/chat/completions', {
       method: 'POST', redirect: 'error', signal: AbortSignal.timeout(30000),
@@ -27,6 +29,7 @@ export async function inspectImage({ image, checkId, config, fetchFn }) {
         tool_choice: { type: 'function', function: { name: 'inspect_check_image' } },
       }),
     });
+    httpStatus = response.status;
     if (!response.ok) throw new Error('upstream');
     const data = await response.json();
     const cost = data.usage?.cost_usd;
@@ -43,7 +46,7 @@ export async function inspectImage({ image, checkId, config, fetchFn }) {
       guidance: readable ? `画像では「${states[a.state]}」が見えます。これは今の確認対象の画面ですか？下の選択肢で、実際の表示を教えてください。`
         : checkId === 'vpn' ? 'VPNの状態をこの画像から確認できません。ブラウザーのログイン画面ではなく、会社指定のVPNアプリの接続表示を探してください。見つからなければ「アプリが見つからない・操作できない」を選べます。'
           : '対象サイトの状態をこの画像から確認できません。開けないサイトの画面を確認してください。分からなければ「どれかわからない」を選べます。' };
-  } catch {
-    return { ok: false, meta: meta || { purpose: 'image', model: null, requestId: null, durationMs: Math.round(performance.now() - started), costUsd: null, totalTokens: null } };
+  } catch (error) {
+    return { ok: false, meta: { ...(meta || { purpose: 'image', model: null, requestId: null, durationMs: Math.round(performance.now() - started), costUsd: null, totalTokens: null }), ...providerDiagnostic(error, httpStatus) } };
   }
 }

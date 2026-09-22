@@ -72,6 +72,7 @@ function render() {
   $('handoff-description').textContent = session?.ticket ? 'ページ下の模擬チケットで、担当者の対応と社員の復旧確認を体験できます。外部への通知はありません。' : '下のレポートを確認したら、このPCに模擬チケットを作成できます。実際の担当者への通知はありません。';
   $('resolved-note').hidden = session?.status !== 'resolved_reported';
   const meta = session?.latestRequest;
+  $('api-result').textContent = !meta ? 'API応答は未確認' : meta.failureMessage ? `${meta.failureMessage} [${meta.failureCode}]` : meta.model ? 'AIの応答を取得・検証済み' : 'API応答は未確認';
   $('model').textContent = meta?.model || '未取得';
   $('latency').textContent = meta ? `${(meta.durationMs / 1000).toFixed(1)} 秒` : '—';
   $('cost').textContent = meta ? meta.costUsd === null ? '未取得' : `$${meta.costUsd.toFixed(6)}` : '—';
@@ -113,7 +114,7 @@ async function act(event, reuse = false) {
 async function checkConfig() {
   try {
     const response = await fetch('/api/status'); const data = await response.json();
-    $('connection').textContent = data.configured ? '● OrcaRouter キー設定済み' : '○ APIキー未設定 · 基本手順で利用可能';
+    $('connection').textContent = data.configured ? '● OrcaRouter キー設定済み · 接続成功は各呼び出し結果で確認' : '○ APIキー未設定 · 基本手順で利用可能';
     $('connection').classList.toggle('ready', data.configured);
   } catch { $('connection').textContent = 'ローカルサーバーを確認してください'; }
 }

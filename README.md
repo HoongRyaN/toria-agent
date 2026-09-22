@@ -54,7 +54,11 @@ Repository content uses Japanese or English. Employee-facing text is primarily J
 
 Read the [Japanese project article](docs/article-ja.md) for the demo flow, architecture, selected implementation code and measured validation results.
 
-See [the validation record](docs/validation.md) for 36 regression tests, live synthetic fixtures, observed failures and follow-up fixes. The optional `node scripts/evaluate.mjs --live --run=my-check` makes six paid API calls. Do not treat mocked tests as model accuracy measurements. A readable image/employee-answer discrepancy now retains both sources and prepares a handoff for further verification.
+See [the validation record](docs/validation.md) for 40 regression tests, live synthetic fixtures, observed failures and follow-up fixes. The optional `node scripts/evaluate.mjs --live --run=my-check` makes six paid API calls. Do not treat mocked tests as model accuracy measurements. A readable image/employee-answer discrepancy now retains both sources and prepares a handoff for further verification.
+
+### When AI calls fail immediately
+
+The page's key-configured indicator only confirms that a key is present. Check the API result below it for a validated response or a specific failure. If TORIA was launched inside a restricted execution environment, outbound requests may fail immediately with `network_denied` while the local page still works. Start the app from your normal terminal using `node server.mjs`, or use `start-toria.cmd` on Windows. Keep the server bound to localhost; do not disable TLS checks or firewall protections. Missing cost is unknown, not zero. Text and image failures now distinguish network permissions, authentication, budget, rate limits and invalid model responses without exposing raw errors or secrets.
 
 Demo tickets are saved in `data/tickets.json`, ignored by Git, and survive server restarts. This is a single-server local store, using a temporary file and rename for writes; it is not a multi-process database. At most 100 tickets are supported. The stored intake report is an immutable snapshot from before ticket creation; the ticket status and activity history describe subsequent progress. A corrupt/unreadable store raises an error rather than silently replacing existing records. Keep this directory private and use fictional cases only.
 

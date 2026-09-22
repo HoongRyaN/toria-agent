@@ -1,0 +1,45 @@
+{
+  "measuredAt": "2026-09-22T03:54:13.088Z",
+  "purpose": "Verify connection recovery after restarting TORIA outside the restricted launch environment.",
+  "environment": {
+    "platform": "win32",
+    "node": "v24.19.0"
+  },
+  "sourceHashes": {
+    "triage.mjs": "4667f7879c6c63dbd4c5161307eac6b43c0ae2e0a059fdd05586c993b7fff2c7",
+    "vision.mjs": "4a5c5d61358f87abcca6793512ae85038c939be9e62f4d46c711b55b274baa99",
+    "provider-diagnostics.mjs": "20379e0920d5db6de42bc835a860d006453246d725413c0bd5a2222464a1d494",
+    "knowledge/company-it.json": "72986f81fd2dac254b4f4afc384e3638552658cc63c6f04c82be714bedf8b27e"
+  },
+  "text": {
+    "input": "自宅で仕事をしていますが、会社のサイトにアクセスできません。",
+    "path": "Running local server /api/triage",
+    "mode": "ai",
+    "checkId": "location",
+    "meta": {
+      "model": "z-ai/glm-5.3-flash",
+      "requestId": "202609220354048229139458268d9d6314RbwBQ",
+      "durationMs": 6142,
+      "costUsd": 0.00009,
+      "totalTokens": 1079,
+      "finishReason": "tool_calls"
+    }
+  },
+  "image": {
+    "input": "public/demo/vpn.png",
+    "inputSha256": "f6190ceb93d7ad6759b223e737fed407b9d7883d4c4f29804c0ecf625c340d23",
+    "path": "vision.mjs in the unrestricted local execution environment",
+    "ok": true,
+    "matches": true,
+    "state": "connected",
+    "meta": {
+      "purpose": "image",
+      "model": "gemini-2.5-flash",
+      "requestId": "202609220354109802077038268d9d64PRJy76J",
+      "durationMs": 2294,
+      "costUsd": 0.000928,
+      "totalTokens": 2104
+    }
+  },
+  "limitations": "Two synthetic checks, one attempt each. This verifies observed API responses, not general model accuracy or final billing. No employee data or API keys are saved here."
+}
